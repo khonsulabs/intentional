@@ -11,6 +11,7 @@ pub trait Assert: Sized {
     /// This function should only be used in functions when the programmer is
     /// asserting a condition that the caller of the function has no control
     /// over.
+    #[inline]
     fn assert_expected(self) -> Self::Expected {
         self.assert("assertion failed")
     }
@@ -27,6 +28,7 @@ pub trait Assert: Sized {
 impl Assert for bool {
     type Expected = bool;
 
+    #[inline]
     fn assert(self, msg: &str) -> Self::Expected {
         self || panic!("{msg}")
     }
@@ -35,6 +37,7 @@ impl Assert for bool {
 impl<'a, T> Assert for &'a Option<T> {
     type Expected = &'a T;
 
+    #[inline]
     fn assert(self, msg: &str) -> Self::Expected {
         self.as_ref().expect(msg)
     }
@@ -43,6 +46,7 @@ impl<'a, T> Assert for &'a Option<T> {
 impl<'a, T> Assert for &'a mut Option<T> {
     type Expected = &'a mut T;
 
+    #[inline]
     fn assert(self, msg: &str) -> Self::Expected {
         self.as_mut().expect(msg)
     }
@@ -63,6 +67,7 @@ where
 {
     type Expected = T;
 
+    #[inline]
     fn assert(self, msg: &str) -> Self::Expected {
         self.expect(msg)
     }
@@ -74,6 +79,7 @@ where
 {
     type Expected = &'a T;
 
+    #[inline]
     fn assert(self, msg: &str) -> Self::Expected {
         self.as_ref().expect(msg)
     }
@@ -85,6 +91,7 @@ where
 {
     type Expected = &'a T;
 
+    #[inline]
     fn assert(self, msg: &str) -> Self::Expected {
         self.as_mut().expect(msg)
     }
