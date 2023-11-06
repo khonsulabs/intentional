@@ -8,5 +8,6 @@ repository = "https://github.com/khonsulabs/intentional"
 keywords = ["clippy", "warnings", "cast", "assert"]
 categories = ["no-std", "development-tools"]
 readme = "./README.md"
+msrv = "1.60.0"
 
 [dependencies]

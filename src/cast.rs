@@ -41,14 +41,8 @@ impl<A> Cast for A {
     }
 }
 
-macro_rules! impl_cast_between {
+macro_rules! impl_cast_to {
     ($a:ident, $b:ident) => {
-        impl CastFrom<$b> for $a {
-            #[inline]
-            fn from_cast(from: $b) -> Self {
-                from as $a
-            }
-        }
         impl CastFrom<$a> for $b {
             #[inline]
             fn from_cast(from: $a) -> Self {
@@ -56,15 +50,28 @@ macro_rules! impl_cast_between {
             }
         }
     };
+    ([$($a:ident),+], $b:ident) => {
+        $(
+            impl_cast_to!($a, $b);
+        )+
+    };
     ($a:ident, [$($b:ident),+]) => {
         $(
-            impl_cast_between!($a, $b);
+            impl_cast_to!($a, $b);
         )+
     };
     ($a:ident, $($b:ident),+) => {
-        impl_cast_between!($a, [$($b),+]);
-        impl_cast_between!($($b),+);
+        impl_cast_to!($a, [$($b),+]);
+        impl_cast_to!($($b),+);
     }
 }
 
-impl_cast_between!(u8, u16, u32, u64, u128, usize, i8, i16, i32, i64, i128, isize, f32, f64);
+impl_cast_to!(f64, f32, isize, i128, i64, i32, i16, i8, usize, u128, u64, u32, u16, u8);
+impl_cast_to!([u32, u64, u128, usize, i32, i64, i128, isize], f32);
+impl_cast_to!([u64, u128, usize, i64, i128, isize], f64);
+impl_cast_to!(u8, i8);
+impl_cast_to!(u16, i16);
+impl_cast_to!(u32, i32);
+impl_cast_to!(u64, i64);
+impl_cast_to!(u128, i128);
+impl_cast_to!(usize, isize);
