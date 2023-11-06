@@ -89,3 +89,25 @@ where
         self.as_mut().expect(msg)
     }
 }
+
+#[macro_export]
+macro_rules! intentional {
+    ($expr:expr) => {
+        $crate::Assert::assert_expected($expr)
+    };
+    ($expr:expr, $msg:expr) => {
+        $crate::Assert::assert($expr, $msg)
+    };
+}
+
+#[test]
+fn intentional() {
+    struct NonCopy;
+    let option = Some("string");
+    let _: &str = intentional!(option);
+    let _: &str = intentional!(option, "msg");
+    let result = Ok::<_, ()>(NonCopy);
+    let _: &NonCopy = intentional!(&result);
+    let _ = intentional!(result);
+    intentional!(true);
+}
