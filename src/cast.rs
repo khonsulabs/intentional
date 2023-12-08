@@ -41,37 +41,59 @@ impl<A> Cast for A {
     }
 }
 
-macro_rules! impl_cast_to {
-    ($a:ident, $b:ident) => {
-        impl CastFrom<$a> for $b {
+macro_rules! impl_cast_from {
+    ($from:ident, [$($to:ident),+]) => {
+        $(impl_cast_from!($from, $to);)+
+    };
+    ($from:ident, $to:ident) => {
+        impl CastFrom<$from> for $to {
+            #[doc = "```rust\n"]
+            #[doc = "# use intentional::Cast;\n"]
+            #[doc = concat!("let casted: ", stringify!($to), " = 1_", stringify!($from), ".cast();\n")]
+            #[doc = "```\n"]
             #[inline]
-            fn from_cast(from: $a) -> Self {
-                from as $b
+            fn from_cast(from: $from) -> Self {
+                from as $to
             }
         }
     };
-    ([$($a:ident),+], $b:ident) => {
-        $(
-            impl_cast_to!($a, $b);
-        )+
-    };
-    ($a:ident, [$($b:ident),+]) => {
-        $(
-            impl_cast_to!($a, $b);
-        )+
-    };
-    ($a:ident, $($b:ident),+) => {
-        impl_cast_to!($a, [$($b),+]);
-        impl_cast_to!($($b),+);
-    }
 }
 
-impl_cast_to!(f64, f32, isize, i128, i64, i32, i16, i8, usize, u128, u64, u32, u16, u8);
-impl_cast_to!([u32, u64, u128, usize, i32, i64, i128, isize], f32);
-impl_cast_to!([u64, u128, usize, i64, i128, isize], f64);
-impl_cast_to!(u8, i8);
-impl_cast_to!(u16, i16);
-impl_cast_to!(u32, i32);
-impl_cast_to!(u64, i64);
-impl_cast_to!(u128, i128);
-impl_cast_to!(usize, isize);
+impl_cast_from!(u8, i8);
+impl_cast_from!(i8, [u8, usize]);
+impl_cast_from!(u16, [u8, i8, i16]);
+impl_cast_from!(i16, [u8, i8, u16, usize]);
+impl_cast_from!(u32, [f32, usize, isize, u8, i8, u16, i16, i32]);
+impl_cast_from!(i32, [f32, usize, isize, u8, i8, u16, i16, u32]);
+impl_cast_from!(
+    u64,
+    [f32, f64, usize, isize, u8, i8, u16, i16, u32, i32, i64]
+);
+impl_cast_from!(
+    i64,
+    [f32, f64, usize, isize, u8, i8, u16, i16, u32, i32, u64]
+);
+impl_cast_from!(
+    u128,
+    [f32, f64, usize, isize, u8, i8, u16, i16, u32, i32, u64, i64, i128]
+);
+impl_cast_from!(
+    i128,
+    [f32, f64, usize, isize, u8, i8, u16, i16, u32, i32, u64, i64, u128]
+);
+impl_cast_from!(
+    isize,
+    [f32, f64, usize, u8, i8, u16, i16, u32, i32, u64, i64, u128, i128]
+);
+impl_cast_from!(
+    usize,
+    [f32, f64, isize, u8, i8, u16, i16, u32, i32, u64, i64, u128, i128]
+);
+impl_cast_from!(
+    f32,
+    [usize, isize, u8, i8, u16, i16, u32, i32, u64, i64, u128, i128]
+);
+impl_cast_from!(
+    f64,
+    [usize, isize, u8, i8, u16, i16, u32, i32, u64, i64, u128, i128, f32]
+);
